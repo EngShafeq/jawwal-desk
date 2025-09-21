@@ -1,11 +1,13 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import React from 'react';
+import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
+import { DashboardTabs } from '@/components/dashboard/DashboardTabs';
 
 const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <div className="min-h-screen p-4 bg-gradient-backdrop">
+      <div className="max-w-7xl mx-auto">
+        <DashboardHeader />
+        <DashboardTabs />
       </div>
     </div>
   );
