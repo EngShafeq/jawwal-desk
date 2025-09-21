@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة إدارة مهام متجر قطع الجوال</title>
+    <meta name="description" content="لوحة إدارة شاملة لمتجر قطع الجوال مع إدارة قوائم الانتظار والشحنات والإرجاعات">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <style>
+        :root {
+            /* Light theme colors */
+            --background: 0 0% 100%;
+            --foreground: 222.2 84% 4.9%;
+            --card: 0 0% 100%;
+            --card-foreground: 222.2 84% 4.9%;
+            --popover: 0 0% 100%;
+            --popover-foreground: 222.2 84% 4.9%;
+            --primary: 262 83% 58%;
+            --primary-foreground: 210 40% 98%;
+            --secondary: 210 40% 96%;
+            --secondary-foreground: 222.2 84% 4.9%;
+            --muted: 210 40% 96%;
+            --muted-foreground: 215.4 16.3% 46.9%;
+            --accent: 210 40% 96%;
+            --accent-foreground: 222.2 84% 4.9%;
+            --destructive: 0 84.2% 60.2%;
+            --destructive-foreground: 210 40% 98%;
+            --border: 214.3 31.8% 91.4%;
+            --input: 214.3 31.8% 91.4%;
+            --ring: 262 83% 58%;
+            --radius: 0.75rem;
+            
+            /* Gradients */
+            --gradient-primary: linear-gradient(135deg, hsl(262 83% 58%), hsl(252 83% 68%));
+            --gradient-backdrop: linear-gradient(135deg, hsl(262 83% 58% / 0.1), hsl(252 83% 68% / 0.05));
+            --gradient-glass: linear-gradient(135deg, hsl(var(--background) / 0.8), hsl(var(--background) / 0.4));
+            
+            /* Shadows */
+            --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            --shadow-elegant: 0 10px 30px -10px hsl(var(--primary) / 0.3);
+        }
+
+        [data-theme="dark"] {
+            --background: 222.2 84% 4.9%;
+            --foreground: 210 40% 98%;
+            --card: 222.2 84% 4.9%;
+            --card-foreground: 210 40% 98%;
+            --popover: 222.2 84% 4.9%;
+            --popover-foreground: 210 40% 98%;
+            --primary: 262 83% 58%;
+            --primary-foreground: 210 40% 98%;
+            --secondary: 217.2 32.6% 17.5%;
+            --secondary-foreground: 210 40% 98%;
+            --muted: 217.2 32.6% 17.5%;
+            --muted-foreground: 215 20.2% 65.1%;
+            --accent: 217.2 32.6% 17.5%;
+            --accent-foreground: 210 40% 98%;
+            --destructive: 0 62.8% 30.6%;
+            --destructive-foreground: 210 40% 98%;
+            --border: 217.2 32.6% 17.5%;
+            --input: 217.2 32.6% 17.5%;
+            --ring: 262 83% 58%;
+            
+            --gradient-backdrop: linear-gradient(135deg, hsl(262 83% 58% / 0.15), hsl(252 83% 68% / 0.1));
+            --gradient-glass: linear-gradient(135deg, hsl(var(--background) / 0.9), hsl(var(--background) / 0.6));
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: hsl(var(--background));
+            color: hsl(var(--foreground));
+            transition: all 0.3s ease;
+            direction: rtl;
+        }
+
+        .min-h-screen {
+            min-height: 100vh;
+        }
+
+        .p-4 {
+            padding: 1rem;
+        }
+
+        .bg-gradient-backdrop {
+            background: var(--gradient-backdrop);
+        }
+
+        .max-w-7xl {
+            max-width: 80rem;
+        }
+
+        .mx-auto {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .glass-card {
+            background: var(--gradient-glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid hsl(var(--border) / 0.2);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-glass);
+        }
+
+        .glass-input {
+            background: hsl(var(--background) / 0.5);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid hsl(var(--border) / 0.3);
+            border-radius: calc(var(--radius) - 2px);
+        }
+
+        .btn-gradient {
+            background: var(--gradient-primary);
+            color: hsl(var(--primary-foreground));
+            border: none;
+            border-radius: calc(var(--radius) - 2px);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-elegant);
+        }
+
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px -12px hsl(var(--primary) / 0.4);
+        }
+
+        .arabic-title {
+            font-size: 2rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .arabic-subtitle {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .flex {
+            display: flex;
+        }
+
+        .items-center {
+            align-items: center;
+        }
+
+        .justify-between {
+            justify-content: space-between;
+        }
+
+        .justify-center {
+            justify-content: center;
+        }
+
+        .gap-2 {
+            gap: 0.5rem;
+        }
+
+        .gap-4 {
+            gap: 1rem;
+        }
+
+        .gap-6 {
+            gap: 1.5rem;
+        }
+
+        .space-y-6 > * + * {
+            margin-top: 1.5rem;
+        }
+
+        .space-y-4 > * + * {
+            margin-top: 1rem;
+        }
+
+        .space-y-3 > * + * {
+            margin-top: 0.75rem;
+        }
+
+        .grid {
+            display: grid;
+        }
+
+        .grid-cols-1 {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+
+        .grid-cols-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .grid-cols-4 {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .grid-cols-8 {
+            grid-template-columns: repeat(8, minmax(0, 1fr));
+        }
+
+        @media (min-width: 768px) {
+            .md\\:grid-cols-2 {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            .md\\:grid-cols-4 {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .lg\\:grid-cols-3 {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+            .lg\\:grid-cols-8 {
+                grid-template-columns: repeat(8, minmax(0, 1fr));
+            }
+        }
+
+        .w-full {
+            width: 100%;
+        }
+
+        .h-4 {
+            height: 1rem;
+        }
+
+        .w-4 {
+            width: 1rem;
+        }
+
+        .h-8 {
+            height: 2rem;
+        }
+
+        .w-8 {
+            width: 2rem;
+        }
+
+        .ml-2 {
+            margin-left: 0.5rem;
+        }
+
+        .mr-2 {
+            margin-right: 0.5rem;
+        }
+
+        .mt-6 {
+            margin-top: 1.5rem;
+        }
+
+        .p-2 {
+            padding: 0.5rem;
+        }
+
+        .p-4 {
+            padding: 1rem;
+        }
+
+        .px-3 {
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+        }
+
+        .py-2 {
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+
+        .text-sm {
+            font-size: 0.875rem;
+        }
+
+        .text-xs {
+            font-size: 0.75rem;
+        }
+
+        .font-medium {
+            font-weight: 500;
+        }
+
+        .font-semibold {
+            font-weight: 600;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-muted-foreground {
+            color: hsl(var(--muted-foreground));
+        }
+
+        .text-destructive {
+            color: hsl(var(--destructive));
+        }
+
+        .rounded-lg {
+            border-radius: 0.5rem;
+        }
+
+        .border-0 {
+            border: none;
+        }
+
+        .cursor-pointer {
+            cursor: pointer;
+        }
+
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+
+        .hover\\:bg-secondary:hover {
+            background-color: hsl(var(--secondary));
+        }
+
+        .hover\\:text-secondary-foreground:hover {
+            color: hsl(var(--secondary-foreground));
+        }
+
+        .bg-primary {
+            background-color: hsl(var(--primary));
+        }
+
+        .text-primary-foreground {
+            color: hsl(var(--primary-foreground));
+        }
+
+        .bg-secondary {
+            background-color: hsl(var(--secondary));
+        }
+
+        .text-secondary-foreground {
+            color: hsl(var(--secondary-foreground));
+        }
+
+        .bg-destructive {
+            background-color: hsl(var(--destructive));
+        }
+
+        .text-destructive-foreground {
+            color: hsl(var(--destructive-foreground));
+        }
+
+        .relative {
+            position: relative;
+        }
+
+        .absolute {
+            position: absolute;
+        }
+
+        .right-3 {
+            right: 0.75rem;
+        }
+
+        .top-1\\/2 {
+            top: 50%;
+        }
+
+        .transform {
+            transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+        }
+
+        .-translate-y-1\\/2 {
+            --tw-translate-y: -50%;
+        }
+
+        .pr-10 {
+            padding-right: 2.5rem;
+        }
+
+        .flex-1 {
+            flex: 1 1 0%;
+        }
+
+        .w-40 {
+            width: 10rem;
+        }
+
+        .inline {
+            display: inline;
+        }
+
+        .flex-wrap {
+            flex-wrap: wrap;
+        }
+
+        .gap-1 {
+            gap: 0.25rem;
+        }
+
+        .ring-2 {
+            box-shadow: 0 0 0 2px hsl(var(--ring));
+        }
+
+        .ring-destructive\\/50 {
+            --tw-ring-color: hsl(var(--destructive) / 0.5);
+        }
+
+        .bg-green-500\\/20 {
+            background-color: hsl(120 61% 50% / 0.2);
+        }
+
+        .text-green-700 {
+            color: hsl(120 61% 34%);
+        }
+
+        .text-green-300 {
+            color: hsl(120 61% 70%);
+        }
+
+        .bg-blue-500\\/20 {
+            background-color: hsl(221 83% 53% / 0.2);
+        }
+
+        .text-blue-700 {
+            color: hsl(221 83% 35%);
+        }
+
+        .text-blue-300 {
+            color: hsl(221 83% 70%);
+        }
+
+        .bg-red-500\\/20 {
+            background-color: hsl(0 84% 60% / 0.2);
+        }
+
+        .text-red-700 {
+            color: hsl(0 84% 40%);
+        }
+
+        .text-red-300 {
+            color: hsl(0 84% 70%);
+        }
+
+        .bg-yellow-500\\/20 {
+            background-color: hsl(45 93% 47% / 0.2);
+        }
+
+        .text-yellow-700 {
+            color: hsl(45 93% 30%);
+        }
+
+        .text-yellow-300 {
+            color: hsl(45 93% 70%);
+        }
+
+        .bg-gray-500\\/20 {
+            background-color: hsl(220 14% 46% / 0.2);
+        }
+
+        .text-gray-700 {
+            color: hsl(220 14% 30%);
+        }
+
+        .text-gray-300 {
+            color: hsl(220 14% 70%);
+        }
+
+        .text-blue-600 {
+            color: hsl(221 83% 53%);
+        }
+
+        .text-green-600 {
+            color: hsl(120 61% 50%);
+        }
+
+        .text-red-600 {
+            color: hsl(0 84% 60%);
+        }
+
+        /* Input styles */
+        input, select, textarea, button {
+            font-family: inherit;
+            border-radius: calc(var(--radius) - 2px);
+            padding: 0.5rem 1rem;
+            border: 1px solid hsl(var(--border));
+            background: hsl(var(--background));
+            color: hsl(var(--foreground));
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            ring: 2px solid hsl(var(--ring));
+        }
+
+        button {
+            cursor: pointer;
+            background: hsl(var(--secondary));
+            color: hsl(var(--secondary-foreground));
+        }
+
+        button:hover {
+            background: hsl(var(--secondary) / 0.8);
+        }
+
+        button.btn-primary {
+            background: var(--gradient-primary);
+            color: hsl(var(--primary-foreground));
+        }
+
+        button.btn-destructive {
+            background: hsl(var(--destructive));
+            color: hsl(var(--destructive-foreground));
+        }
+
+        /* Badge styles */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 9999px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border: 1px solid transparent;
+        }
+
+        /* Table styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: right;
+            border-bottom: 1px solid hsl(var(--border));
+        }
+
+        th {
+            font-weight: 600;
+            background: hsl(var(--muted));
+        }
+
+        /* Modal styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: hsl(var(--background));
+            border-radius: var(--radius);
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: var(--shadow-glass);
+        }
+
+        /* Notification styles */
+        .notification {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius);
+            color: white;
+            font-weight: 500;
+            z-index: 1001;
+            animation: slideIn 0.3s ease;
+        }
+
+        .notification.success {
+            background: hsl(120 61% 50%);
+        }
+
+        .notification.error {
+            background: hsl(var(--destructive));
+        }
+
+        .notification.warning {
+            background: hsl(45 93% 47%);
+        }
+
+        .notification.info {
+            background: hsl(221 83% 53%);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Tab styles */
+        .tabs {
+            width: 100%;
+        }
+
+        .tab-list {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.25rem;
+            padding: 0.5rem;
+            background: hsl(var(--muted));
+            border-radius: var(--radius);
+        }
+
+        @media (min-width: 1024px) {
+            .tab-list {
+                grid-template-columns: repeat(8, 1fr);
+            }
+        }
+
+        .tab-trigger {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: calc(var(--radius) - 2px);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: transparent;
+            border: none;
+            color: hsl(var(--muted-foreground));
+        }
+
+        .tab-trigger.active {
+            background: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+        }
+
+        .tab-trigger:hover:not(.active) {
+            background: hsl(var(--secondary));
+            color: hsl(var(--secondary-foreground));
+        }
+
+        .tab-content {
+            margin-top: 1.5rem;
+        }
+
+        .tab-content:not(.active) {
+            display: none;
+        }
+
+        /* Chart container */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 1rem 0;
+        }
+
+        /* Bulk actions bar */
+        .bulk-actions {
+            position: sticky;
+            bottom: 1rem;
+            background: var(--gradient-glass);
+            backdrop-filter: blur(16px);
+            padding: 1rem;
+            border-radius: var(--radius);
+            border: 1px solid hsl(var(--border) / 0.2);
+            box-shadow: var(--shadow-glass);
+            transform: translateY(100%);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .bulk-actions.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* File input styles */
+        .file-input {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-input input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input label {
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: hsl(var(--secondary));
+            color: hsl(var(--secondary-foreground));
+            border-radius: calc(var(--radius) - 2px);
+            transition: all 0.3s ease;
+        }
+
+        .file-input label:hover {
+            background: hsl(var(--secondary) / 0.8);
+        }
+
+        @media (max-width: 640px) {
+            .tab-trigger span {
+                display: none;
+            }
+        }
+
+        .select-wrapper {
+            position: relative;
+        }
+
+        .select-wrapper::after {
+            content: '▼';
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            font-size: 0.75rem;
+            color: hsl(var(--muted-foreground));
+        }
+
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            padding-left: 2.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen p-4 bg-gradient-backdrop">
+        <div class="max-w-7xl mx-auto">
+            <!-- Header -->
+            <header class="glass-card p-6 mb-6 animate-fade-in">
+                <div class="flex items-center justify-between">
+                    <h1 class="arabic-title">لوحة إدارة مهام متجر قطع الجوال</h1>
+                    <div class="flex items-center gap-4">
+                        <button id="theme-toggle" class="glass-input p-2 rounded-lg cursor-pointer hover:bg-secondary hover:text-secondary-foreground transition-all">
+                            الوضع: <span id="theme-text">فاتح</span>
+                        </button>
+                        <button id="backup-btn" class="btn-gradient">
+                            <i data-lucide="download" class="h-4 w-4 ml-2"></i>
+                            نسخ احتياطي
+                        </button>
+                        <div class="file-input">
+                            <input type="file" id="restore-input" accept=".json">
+                            <label for="restore-input" class="glass-input">
+                                <i data-lucide="upload" class="h-4 w-4"></i>
+                                استرجاع
+                            </label>
+                        </div>
+                        <button id="clear-btn" class="btn-destructive">
+                            <i data-lucide="trash-2" class="h-4 w-4 ml-2"></i>
+                            مسح البيانات
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard -->
+            <div class="glass-card animate-fade-in">
+                <div class="tabs">
+                    <div class="tab-list" id="tab-list">
+                        <button class="tab-trigger active" data-tab="dashboard">
+                            <i data-lucide="bar-chart-3" class="h-4 w-4 ml-2"></i>
+                            <span>لوحة التحكم</span>
+                        </button>
+                        <button class="tab-trigger" data-tab="waiting">
+                            <i data-lucide="users" class="h-4 w-4 ml-2"></i>
+                            <span>قائمة الانتظار</span>
+                        </button>
+                        <button class="tab-trigger" data-tab="shipping">
+                            <i data-lucide="truck" class="h-4 w-4 ml-2"></i>
+                            <span>الشحنات</span>
+                        </button>
+                        <button class="tab-trigger" data-tab="returns">
+                            <i data-lucide="rotate-ccw" class="h-4 w-4 ml-2"></i>
+                            <span>الإرجاعات</span>
+                        </button>
+                        <button class="tab-trigger" data-tab="issues">
+                            <i data-lucide="alert-triangle" class="h-4 w-4 ml-2"></i>
+                            <span>القضايا</span>
+                        </button>
+                        <button class="tab-trigger" data-tab="tasks">
+                            <i data-lucide="check-square" class="h-4 w-4 ml-2"></i>
+                            <span>المهام</span>
+                        </button>
+                        <button class="tab-trigger" data-tab="dropdowns">
+                            <i data-lucide="settings" class="h-4 w-4 ml-2"></i>
+                            <span>إدارة القوائم</span>
+                        </button>
+                        <button class="tab-trigger" data-tab="archive">
+                            <i data-lucide="archive" class="h-4 w-4 ml-2"></i>
+                            <span>الأرشيف</span>
+                        </button>
+                    </div>
+
+                    <!-- Dashboard Tab -->
+                    <div class="tab-content active" id="dashboard-content">
+                        <div class="space-y-6">
+                            <h2 class="arabic-subtitle">التقارير والإحصائيات</h2>
+                            
+                            <!-- KPIs -->
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="dashboard-kpis">
+                                <!-- KPIs will be populated by JavaScript -->
+                            </div>
+
+                            <!-- Charts -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="glass-card p-4">
+                                    <h3 class="font-semibold mb-4">شركات الشحن</h3>
+                                    <div class="chart-container">
+                                        <canvas id="shipping-chart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="glass-card p-4">
+                                    <h3 class="font-semibold mb-4">تصنيفات القضايا</h3>
+                                    <div class="chart-container">
+                                        <canvas id="issues-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Waiting List Tab -->
+                    <div class="tab-content" id="waiting-content">
+                        <div class="space-y-6">
+                            <!-- Add Form -->
+                            <div class="glass-card p-6">
+                                <h3 class="arabic-subtitle mb-4">إضافة عميل جديد</h3>
+                                <form id="waiting-form" class="space-y-4">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        <input type="text" id="waiting-customer" placeholder="اسم العميل" required class="glass-input border-0">
+                                        <input type="text" id="waiting-whatsapp" placeholder="واتساب (05xxxxxxxx)" required class="glass-input border-0">
+                                        <div class="select-wrapper">
+                                            <select id="waiting-brand" required class="glass-input border-0 w-full">
+                                                <option value="">العلامة التجارية</option>
+                                            </select>
+                                        </div>
+                                        <div class="select-wrapper">
+                                            <select id="waiting-part" required class="glass-input border-0 w-full">
+                                                <option value="">نوع القطعة</option>
+                                            </select>
+                                        </div>
+                                        <input type="text" id="waiting-model" placeholder="الموديل" class="glass-input border-0">
+                                        <input type="text" id="waiting-network" placeholder="الشبكة" class="glass-input border-0">
+                                        <div class="select-wrapper">
+                                            <select id="waiting-color" class="glass-input border-0 w-full">
+                                                <option value="">اللون</option>
+                                            </select>
+                                        </div>
+                                        <div class="select-wrapper">
+                                            <select id="waiting-availability" class="glass-input border-0 w-full">
+                                                <option value="غير متوفر">غير متوفر</option>
+                                                <option value="متوفر">متوفر</option>
+                                            </select>
+                                        </div>
+                                        <input type="number" id="waiting-price" placeholder="السعر" class="glass-input border-0">
+                                        <input type="url" id="waiting-link" placeholder="رابط المنتج" class="glass-input border-0">
+                                    </div>
+                                    <div class="glass-card p-4">
+                                        <h4 class="font-semibold mb-2">معاينة المنتج</h4>
+                                        <div id="waiting-preview" class="text-sm text-muted-foreground">
+                                            سيتم إنشاء المعاينة تلقائياً عند إدخال البيانات...
+                                        </div>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button type="submit" class="btn-gradient">
+                                            <i data-lucide="plus" class="h-4 w-4 ml-2"></i>
+                                            إضافة
+                                        </button>
+                                        <button type="button" id="waiting-copy" class="glass-input border-0">
+                                            <i data-lucide="copy" class="h-4 w-4 ml-2"></i>
+                                            نسخ
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- Search and Filters -->
+                            <div class="flex items-center gap-4">
+                                <div class="relative flex-1">
+                                    <i data-lucide="search" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4"></i>
+                                    <input type="text" id="waiting-search" placeholder="البحث في قائمة الانتظار..." class="glass-input border-0 pr-10 w-full">
+                                </div>
+                                <div class="select-wrapper w-40">
+                                    <select id="waiting-filter" class="glass-input border-0 w-full">
+                                        <option value="all">جميع العملاء</option>
+                                        <option value="available">متوفر</option>
+                                        <option value="unavailable">غير متوفر</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Items List -->
+                            <div id="waiting-list" class="space-y-3">
+                                <!-- Items will be populated by JavaScript -->
+                            </div>
+
+                            <!-- Pagination -->
+                            <div id="waiting-pagination" class="flex justify-center gap-2">
+                                <!-- Pagination will be populated by JavaScript -->
+                            </div>
+
+                            <!-- KPIs -->
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="waiting-kpis">
+                                <!-- KPIs will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Other tabs content will be implemented similarly -->
+                    <div class="tab-content" id="shipping-content">
+                        <div class="space-y-6">
+                            <h2 class="arabic-subtitle">إدارة الشحنات</h2>
+                            <!-- Shipping content implementation -->
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="returns-content">
+                        <div class="space-y-6">
+                            <h2 class="arabic-subtitle">إدارة الإرجاعات</h2>
+                            <!-- Returns content implementation -->
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="issues-content">
+                        <div class="space-y-6">
+                            <h2 class="arabic-subtitle">إدارة القضايا</h2>
+                            <!-- Issues content implementation -->
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="tasks-content">
+                        <div class="space-y-6">
+                            <h2 class="arabic-subtitle">إدارة المهام</h2>
+                            <!-- Tasks content implementation -->
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="dropdowns-content">
+                        <div class="space-y-6">
+                            <h2 class="arabic-subtitle">إدارة القوائم المنسدلة</h2>
+                            <!-- Dropdown Manager content implementation -->
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="archive-content">
+                        <div class="space-y-6">
+                            <h2 class="arabic-subtitle">الأرشيف</h2>
+                            <!-- Archive content implementation -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Actions Bar -->
+    <div id="bulk-actions" class="bulk-actions">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span id="selected-count">0</span> عنصر محدد
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="bulk-archive" class="glass-input border-0">أرشفة</button>
+                <button id="bulk-delete" class="btn-destructive">حذف</button>
+                <button id="bulk-clear" class="glass-input border-0">إلغاء التحديد</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Global state management
+        class Store {
+            constructor() {
+                this.data = this.loadData();
+                this.listeners = [];
+            }
+
+            loadData() {
+                const defaultData = {
+                    waiting: [],
+                    shipping: [],
+                    returns: [],
+                    issues: [],
+                    tasks: [],
+                    archive: [],
+                    dropdowns: {
+                        brands: ['سامسونج', 'آيفون', 'هواوي', 'شاومي', 'أوبو', 'فيفو', 'ريلمي', 'ون بلس'],
+                        parts: ['شاشة', 'بطارية', 'كاميرا', 'سماعة', 'مايك', 'شاحن', 'كفر', 'زجاج حماية'],
+                        colors: ['أسود', 'أبيض', 'ذهبي', 'فضي', 'أزرق', 'أخضر', 'أحمر', 'بنفسجي'],
+                        shippingCompanies: ['سمسا', 'أرامكس', 'فيديكس', 'دي إتش إل', 'البريد السعودي'],
+                        cancellationReasons: ['عدم توفر المنتج', 'طلب العميل', 'عنوان خطأ', 'رقم خطأ'],
+                        issueCategories: ['تأخير', 'نقص', 'تالف', 'خطأ في الطلب'],
+                        returnStatuses: ['جديد', 'قيد المعالجة', 'مكتمل'],
+                        taskTitles: ['متابعة مع المورد', 'تحديث الأسعار', 'جرد المخزون', 'تواصل مع العميل'],
+                        trackingLinks: ['https://sms.com.sa/track/', 'https://aramex.com/track/', 'https://fedex.com/track/']
+                    }
+                };
+
+                try {
+                    const saved = localStorage.getItem('jawwal-desk-data');
+                    return saved ? { ...defaultData, ...JSON.parse(saved) } : defaultData;
+                } catch (error) {
+                    console.error('Error loading data:', error);
+                    return defaultData;
+                }
+            }
+
+            saveData() {
+                try {
+                    localStorage.setItem('jawwal-desk-data', JSON.stringify(this.data));
+                    this.notifyListeners();
+                } catch (error) {
+                    console.error('Error saving data:', error);
+                    showNotification('خطأ في حفظ البيانات', 'error');
+                }
+            }
+
+            subscribe(listener) {
+                this.listeners.push(listener);
+            }
+
+            notifyListeners() {
+                this.listeners.forEach(listener => listener(this.data));
+            }
+
+            // CRUD operations
+            add(section, item) {
+                this.data[section].push({ ...item, id: Date.now().toString(), dateAdded: new Date().toISOString() });
+                this.saveData();
+            }
+
+            update(section, id, updates) {
+                const index = this.data[section].findIndex(item => item.id === id);
+                if (index !== -1) {
+                    this.data[section][index] = { ...this.data[section][index], ...updates };
+                    this.saveData();
+                }
+            }
+
+            delete(section, id) {
+                this.data[section] = this.data[section].filter(item => item.id !== id);
+                this.saveData();
+            }
+
+            archive(section, id) {
+                const item = this.data[section].find(item => item.id === id);
+                if (item) {
+                    this.data.archive.push({ ...item, section, archivedDate: new Date().toISOString() });
+                    this.delete(section, id);
+                }
+            }
+
+            restore(id) {
+                const item = this.data.archive.find(item => item.id === id);
+                if (item) {
+                    const { section, archivedDate, ...restoredItem } = item;
+                    this.data[section].push(restoredItem);
+                    this.data.archive = this.data.archive.filter(item => item.id !== id);
+                    this.saveData();
+                }
+            }
+        }
+
+        // Initialize store
+        const store = new Store();
+
+        // Theme management
+        class ThemeManager {
+            constructor() {
+                this.theme = localStorage.getItem('jawwal-theme') || 'light';
+                this.applyTheme();
+                this.setupToggle();
+            }
+
+            applyTheme() {
+                document.documentElement.setAttribute('data-theme', this.theme);
+                document.getElementById('theme-text').textContent = this.theme === 'dark' ? 'داكن' : 'فاتح';
+            }
+
+            toggle() {
+                this.theme = this.theme === 'dark' ? 'light' : 'dark';
+                localStorage.setItem('jawwal-theme', this.theme);
+                this.applyTheme();
+            }
+
+            setupToggle() {
+                document.getElementById('theme-toggle').addEventListener('click', () => this.toggle());
+            }
+        }
+
+        const themeManager = new ThemeManager();
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Modal system
+        function showModal(title, content, onConfirm) {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <h3 class="arabic-subtitle mb-4">${title}</h3>
+                    <p class="mb-6">${content}</p>
+                    <div class="flex gap-2 justify-end">
+                        <button id="modal-cancel" class="glass-input border-0">إلغاء</button>
+                        <button id="modal-confirm" class="btn-destructive">تأكيد</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            document.getElementById('modal-cancel').onclick = () => modal.remove();
+            document.getElementById('modal-confirm').onclick = () => {
+                onConfirm();
+                modal.remove();
+            };
+            
+            modal.onclick = (e) => {
+                if (e.target === modal) modal.remove();
+            };
+        }
+
+        // Tab management
+        class TabManager {
+            constructor() {
+                this.setupTabs();
+            }
+
+            setupTabs() {
+                const triggers = document.querySelectorAll('.tab-trigger');
+                const contents = document.querySelectorAll('.tab-content');
+
+                triggers.forEach(trigger => {
+                    trigger.addEventListener('click', () => {
+                        const tab = trigger.dataset.tab;
+                        
+                        // Remove active class from all triggers and contents
+                        triggers.forEach(t => t.classList.remove('active'));
+                        contents.forEach(c => c.classList.remove('active'));
+                        
+                        // Add active class to clicked trigger and corresponding content
+                        trigger.classList.add('active');
+                        document.getElementById(`${tab}-content`).classList.add('active');
+                        
+                        // Load tab content if needed
+                        this.loadTabContent(tab);
+                    });
+                });
+            }
+
+            loadTabContent(tab) {
+                switch (tab) {
+                    case 'dashboard':
+                        this.loadDashboard();
+                        break;
+                    case 'waiting':
+                        this.loadWaitingList();
+                        break;
+                    // Add other cases as needed
+                }
+            }
+
+            loadDashboard() {
+                this.updateDashboardKPIs();
+                this.updateCharts();
+            }
+
+            updateDashboardKPIs() {
+                const kpisContainer = document.getElementById('dashboard-kpis');
+                const data = store.data;
+                
+                const kpis = [
+                    { label: 'قائمة الانتظار', value: data.waiting.length, color: 'text-blue-600' },
+                    { label: 'الشحنات النشطة', value: data.shipping.filter(s => !s.processed).length, color: 'text-green-600' },
+                    { label: 'القضايا المفتوحة', value: data.issues.filter(i => i.status === 'قيد المعالجة').length, color: 'text-red-600' },
+                    { label: 'المهام المعلقة', value: data.tasks.filter(t => t.status === 'قيد التنفيذ').length, color: 'text-yellow-600' }
+                ];
+
+                kpisContainer.innerHTML = kpis.map(kpi => `
+                    <div class="glass-card p-4 text-center">
+                        <div class="arabic-subtitle ${kpi.color}">${kpi.value}</div>
+                        <div class="text-sm text-muted-foreground">${kpi.label}</div>
+                    </div>
+                `).join('');
+            }
+
+            updateCharts() {
+                // Shipping companies chart
+                const shippingData = store.data.shipping.reduce((acc, item) => {
+                    acc[item.company] = (acc[item.company] || 0) + 1;
+                    return acc;
+                }, {});
+
+                if (window.shippingChart) {
+                    window.shippingChart.destroy();
+                }
+
+                const shippingCtx = document.getElementById('shipping-chart').getContext('2d');
+                window.shippingChart = new Chart(shippingCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: Object.keys(shippingData),
+                        datasets: [{
+                            data: Object.values(shippingData),
+                            backgroundColor: [
+                                'hsl(262, 83%, 58%)',
+                                'hsl(221, 83%, 53%)',
+                                'hsl(120, 61%, 50%)',
+                                'hsl(45, 93%, 47%)',
+                                'hsl(0, 84%, 60%)'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+
+                // Issues chart
+                const issuesData = store.data.issues.reduce((acc, item) => {
+                    acc[item.category] = (acc[item.category] || 0) + 1;
+                    return acc;
+                }, {});
+
+                if (window.issuesChart) {
+                    window.issuesChart.destroy();
+                }
+
+                const issuesCtx = document.getElementById('issues-chart').getContext('2d');
+                window.issuesChart = new Chart(issuesCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(issuesData),
+                        datasets: [{
+                            label: 'عدد القضايا',
+                            data: Object.values(issuesData),
+                            backgroundColor: 'hsl(262, 83%, 58%)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            loadWaitingList() {
+                this.setupWaitingForm();
+                this.populateDropdowns();
+                this.renderWaitingList();
+                this.setupWaitingSearch();
+            }
+
+            setupWaitingForm() {
+                const form = document.getElementById('waiting-form');
+                const previewDiv = document.getElementById('waiting-preview');
+                
+                // Update preview on input changes
+                const inputs = form.querySelectorAll('input, select');
+                inputs.forEach(input => {
+                    input.addEventListener('input', () => this.updateWaitingPreview());
+                });
+
+                // Handle form submission
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.addWaitingItem();
+                });
+
+                // Handle copy button
+                document.getElementById('waiting-copy').addEventListener('click', () => {
+                    const preview = document.getElementById('waiting-preview').textContent;
+                    navigator.clipboard.writeText(preview).then(() => {
+                        showNotification('تم نسخ المعاينة', 'success');
+                    });
+                });
+            }
+
+            populateDropdowns() {
+                const brandSelect = document.getElementById('waiting-brand');
+                const partSelect = document.getElementById('waiting-part');
+                const colorSelect = document.getElementById('waiting-color');
+
+                // Populate brands
+                brandSelect.innerHTML = '<option value="">العلامة التجارية</option>' +
+                    store.data.dropdowns.brands.map(brand => `<option value="${brand}">${brand}</option>`).join('');
+
+                // Populate parts
+                partSelect.innerHTML = '<option value="">نوع القطعة</option>' +
+                    store.data.dropdowns.parts.map(part => `<option value="${part}">${part}</option>`).join('');
+
+                // Populate colors
+                colorSelect.innerHTML = '<option value="">اللون</option>' +
+                    store.data.dropdowns.colors.map(color => `<option value="${color}">${color}</option>`).join('');
+            }
+
+            updateWaitingPreview() {
+                const form = document.getElementById('waiting-form');
+                const formData = new FormData(form);
+                const data = {};
+                
+                // Get form data
+                for (let [key, value] of formData.entries()) {
+                    data[key.replace('waiting-', '')] = value;
+                }
+
+                // Get values from inputs directly since FormData might not capture all
+                data.customer = document.getElementById('waiting-customer').value;
+                data.whatsapp = document.getElementById('waiting-whatsapp').value;
+                data.brand = document.getElementById('waiting-brand').value;
+                data.part = document.getElementById('waiting-part').value;
+                data.model = document.getElementById('waiting-model').value;
+                data.network = document.getElementById('waiting-network').value;
+                data.color = document.getElementById('waiting-color').value;
+                data.availability = document.getElementById('waiting-availability').value;
+                data.price = document.getElementById('waiting-price').value;
+                data.link = document.getElementById('waiting-link').value;
+
+                // Generate preview
+                let preview = `العميل: ${data.customer || 'غير محدد'}\n`;
+                preview += `المنتج: ${data.brand || ''} ${data.part || ''} ${data.model || ''}\n`;
+                if (data.color) preview += `اللون: ${data.color}\n`;
+                if (data.network) preview += `الشبكة: ${data.network}\n`;
+                preview += `الحالة: ${data.availability || 'غير متوفر'}\n`;
+                if (data.price) preview += `السعر: ${data.price} ريال\n`;
+                if (data.link) preview += `الرابط: ${data.link}\n`;
+                preview += `الواتساب: ${data.whatsapp || 'غير محدد'}`;
+
+                document.getElementById('waiting-preview').textContent = preview;
+            }
+
+            addWaitingItem() {
+                const form = document.getElementById('waiting-form');
+                const customer = document.getElementById('waiting-customer').value;
+                const whatsapp = document.getElementById('waiting-whatsapp').value;
+                const brand = document.getElementById('waiting-brand').value;
+                const part = document.getElementById('waiting-part').value;
+
+                if (!customer || !whatsapp || !brand || !part) {
+                    showNotification('يرجى إدخال البيانات المطلوبة', 'error');
+                    return;
+                }
+
+                // Validate WhatsApp number
+                const whatsappRegex = /^05\d{8}$/;
+                if (!whatsappRegex.test(whatsapp)) {
+                    showNotification('رقم الواتساب غير صحيح (يجب أن يبدأ بـ 05 ويتكون من 10 أرقام)', 'error');
+                    return;
+                }
+
+                // Check for duplicates
+                const exists = store.data.waiting.some(item => 
+                    item.customer === customer && item.whatsapp === whatsapp
+                );
+
+                if (exists) {
+                    showNotification('العميل موجود مسبقاً', 'warning');
+                    return;
+                }
+
+                const item = {
+                    customer,
+                    whatsapp,
+                    brand,
+                    part,
+                    model: document.getElementById('waiting-model').value,
+                    network: document.getElementById('waiting-network').value,
+                    color: document.getElementById('waiting-color').value,
+                    availability: document.getElementById('waiting-availability').value,
+                    price: document.getElementById('waiting-price').value,
+                    link: document.getElementById('waiting-link').value,
+                    processed: false
+                };
+
+                store.add('waiting', item);
+                form.reset();
+                document.getElementById('waiting-preview').textContent = 'سيتم إنشاء المعاينة تلقائياً عند إدخال البيانات...';
+                this.renderWaitingList();
+                showNotification('تم إضافة العميل بنجاح', 'success');
+            }
+
+            renderWaitingList() {
+                const container = document.getElementById('waiting-list');
+                const searchTerm = document.getElementById('waiting-search').value.toLowerCase();
+                const filter = document.getElementById('waiting-filter').value;
+
+                let items = store.data.waiting.filter(item => {
+                    const matchesSearch = !searchTerm || 
+                        item.customer.toLowerCase().includes(searchTerm) ||
+                        item.brand.toLowerCase().includes(searchTerm) ||
+                        item.part.toLowerCase().includes(searchTerm);
+                    
+                    const matchesFilter = filter === 'all' || 
+                        (filter === 'available' && item.availability === 'متوفر') ||
+                        (filter === 'unavailable' && item.availability === 'غير متوفر');
+
+                    return matchesSearch && matchesFilter;
+                });
+
+                container.innerHTML = items.map(item => `
+                    <div class="glass-card p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-2 text-sm">
+                                <div>
+                                    <span class="font-medium">${item.customer}</span>
+                                    <div class="text-muted-foreground">${item.whatsapp}</div>
+                                </div>
+                                <div>
+                                    <span class="font-medium">${item.brand} ${item.part}</span>
+                                    <div class="text-muted-foreground">${item.model || ''} ${item.color || ''}</div>
+                                </div>
+                                <div>
+                                    <span class="badge ${item.availability === 'متوفر' ? 'bg-green-500/20 text-green-700' : 'bg-red-500/20 text-red-700'}">
+                                        ${item.availability}
+                                    </span>
+                                    ${item.price ? `<div class="text-xs text-muted-foreground">${item.price} ريال</div>` : ''}
+                                </div>
+                                <div class="flex flex-wrap gap-1">
+                                    <button onclick="toggleAvailability('${item.id}')" class="glass-input border-0 px-2 py-1 text-xs">
+                                        تبديل التوفر
+                                    </button>
+                                    <button onclick="openWhatsApp('${item.whatsapp}', '${item.customer}')" class="glass-input border-0 px-2 py-1 text-xs">
+                                        واتساب
+                                    </button>
+                                    <button onclick="archiveItem('waiting', '${item.id}')" class="glass-input border-0 px-2 py-1 text-xs">
+                                        أرشفة
+                                    </button>
+                                    <button onclick="deleteItem('waiting', '${item.id}')" class="btn-destructive px-2 py-1 text-xs">
+                                        حذف
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Update KPIs
+                this.updateWaitingKPIs();
+            }
+
+            updateWaitingKPIs() {
+                const kpisContainer = document.getElementById('waiting-kpis');
+                const data = store.data.waiting;
+                
+                const kpis = [
+                    { label: 'إجمالي العملاء', value: data.length, color: 'text-blue-600' },
+                    { label: 'متوفر', value: data.filter(i => i.availability === 'متوفر').length, color: 'text-green-600' },
+                    { label: 'غير متوفر', value: data.filter(i => i.availability === 'غير متوفر').length, color: 'text-red-600' },
+                    { label: 'تمت المعالجة', value: data.filter(i => i.processed).length, color: 'text-gray-600' }
+                ];
+
+                kpisContainer.innerHTML = kpis.map(kpi => `
+                    <div class="glass-card p-4 text-center">
+                        <div class="arabic-subtitle ${kpi.color}">${kpi.value}</div>
+                        <div class="text-sm text-muted-foreground">${kpi.label}</div>
+                    </div>
+                `).join('');
+            }
+
+            setupWaitingSearch() {
+                const searchInput = document.getElementById('waiting-search');
+                const filterSelect = document.getElementById('waiting-filter');
+
+                searchInput.addEventListener('input', () => this.renderWaitingList());
+                filterSelect.addEventListener('change', () => this.renderWaitingList());
+            }
+        }
+
+        // Initialize tab manager
+        const tabManager = new TabManager();
+
+        // Global functions for button actions
+        window.toggleAvailability = function(id) {
+            const item = store.data.waiting.find(i => i.id === id);
+            if (item) {
+                store.update('waiting', id, { 
+                    availability: item.availability === 'متوفر' ? 'غير متوفر' : 'متوفر' 
+                });
+                tabManager.renderWaitingList();
+                showNotification('تم تحديث حالة التوفر', 'success');
+            }
+        };
+
+        window.openWhatsApp = function(phone, customerName) {
+            const message = `مرحباً ${customerName}, نتواصل معك من متجر قطع الجوال بخصوص طلبك.`;
+            const url = `https://wa.me/966${phone.substring(1)}?text=${encodeURIComponent(message)}`;
+            window.open(url, '_blank');
+        };
+
+        window.archiveItem = function(section, id) {
+            showModal('تأكيد الأرشفة', 'هل تريد أرشفة هذا العنصر؟', () => {
+                store.archive(section, id);
+                if (section === 'waiting') tabManager.renderWaitingList();
+                showNotification('تم الأرشفة بنجاح', 'success');
+            });
+        };
+
+        window.deleteItem = function(section, id) {
+            showModal('تأكيد الحذف', 'هل تريد حذف هذا العنصر نهائياً؟', () => {
+                store.delete(section, id);
+                if (section === 'waiting') tabManager.renderWaitingList();
+                showNotification('تم الحذف بنجاح', 'success');
+            });
+        };
+
+        // Backup and restore functionality
+        document.getElementById('backup-btn').addEventListener('click', () => {
+            const data = JSON.stringify(store.data, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `jawwal-desk-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification('تم تصدير النسخة الاحتياطية', 'success');
+        });
+
+        document.getElementById('restore-input').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    store.data = { ...store.data, ...data };
+                    store.saveData();
+                    location.reload();
+                } catch (error) {
+                    showNotification('خطأ في استرجاع البيانات', 'error');
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        document.getElementById('clear-btn').addEventListener('click', () => {
+            showModal('تأكيد مسح البيانات', 'هل تريد مسح جميع البيانات؟ هذا الإجراء لا يمكن التراجع عنه.', () => {
+                localStorage.removeItem('jawwal-desk-data');
+                location.reload();
+            });
+        });
+
+        // Initialize dashboard on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            tabManager.loadDashboard();
+            lucide.createIcons();
+        });
+
+        // Store subscription for updates
+        store.subscribe(() => {
+            tabManager.updateDashboardKPIs();
+        });
+    </script>
+</body>
+</html>
